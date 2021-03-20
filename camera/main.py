@@ -1,5 +1,7 @@
 import numpy as np
 import cv2 as cv
+import os
+os.add_dll_directory(r'C:\Users\jason\Documents\Vanderbilt\4th Year Courseload\EECE Senior Design\Project\empty-vial-detection\camera')
 import ctypes as C
 import tisgrabber as IC
 
@@ -21,7 +23,6 @@ Camera.ShowDeviceSelectionDialog()
 
 if Camera.IsDevValid() == 1:
     # cv2.namedWindow('Window', cv2.cv.CV_WINDOW_NORMAL)
-    print('Press ctrl-c to stop')
 
     # Set a video format
     # Camera.SetVideoFormat("RGB32 (640x480)")
@@ -63,7 +64,7 @@ if Camera.IsDevValid() == 1:
 
     WhiteBalanceAuto = [0]
     # Same goes with white balance. We make a complete red image:
-    Camera.SetPropertySwitch("WhiteBalance", "Auto", 1)
+    Camera.SetPropertySwitch("WhiteBalance", "Auto", 0)
     Camera.GetPropertySwitch("WhiteBalance", "Auto", WhiteBalanceAuto)
     print("WB auto : ", WhiteBalanceAuto[0])
 
@@ -71,9 +72,18 @@ if Camera.IsDevValid() == 1:
     # Camera.GetPropertySwitch("WhiteBalance", "Auto", WhiteBalanceAuto)
     # print("WB auto : ", WhiteBalanceAuto[0])
 
-    # Camera.SetPropertyValue("WhiteBalance", "White Balance Red", 64)
-    # Camera.SetPropertyValue("WhiteBalance", "White Balance Green", 64)
-    # Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", 64)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Red", 64)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Green", 50)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", 64)
+
+
+    Zoomauto = [0]
+    # Same goes with white balance. We make a complete red image:
+    Camera.SetPropertySwitch("Zoom", "Auto", 0)
+    Camera.GetPropertySwitch("Zoom", "Auto", WhiteBalanceAuto)
+    print("Zoom auto : ", WhiteBalanceAuto[0])
+
+    Camera.SetPropertyValue("Zoom", "Value", 65)
 
     img_counter = 0
 
