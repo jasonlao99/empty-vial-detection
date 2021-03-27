@@ -44,23 +44,22 @@ if Camera.IsDevValid() == 1:
     # In order to set a fixed exposure time, the Exposure Automatic must be disabled first.
     # Using the IC Imaging Control VCD Property Inspector, we know, the item is "Exposure", the
     # element is "Auto" and the interface is "Switch". Therefore we use for disabling:
-    Camera.SetPropertySwitch("Exposure", "Auto", 1)
+    Camera.SetPropertySwitch("Exposure", "Auto", 0)
     # "0" is off, "1" is on.
 
-    # ExposureTime = [0]
-    # Camera.GetPropertyAbsoluteValue("Exposure", "Value", ExposureTime)
-    # print("Exposure time abs: ", ExposureTime[0])
-    #
-    # # Set an absolute exposure time, given in fractions of seconds. 0.0303 is 1/30 second:
-    # Camera.SetPropertyAbsoluteValue("Exposure", "Value", 0.0303)
+    ExposureTime = [0]
+    Camera.GetPropertyAbsoluteValue("Exposure", "Value", ExposureTime)
+    print("Exposure time abs: ", ExposureTime[0])
+
+    # Set an absolute exposure time, given in fractions of seconds. 0.0303 is 1/30 second:
+    Camera.SetPropertyAbsoluteValue("Exposure", "Value", 0.004)
 
     # Proceed with Gain, since we have gain automatic, disable first. Then set values.
     Gainauto = [0]
     Camera.GetPropertySwitch("Gain", "Auto", Gainauto)
     print("Gain auto : ", Gainauto[0])
 
-    Camera.SetPropertySwitch("Gain", "Auto", 1)
-    # Camera.SetPropertyValue("Gain", "Value", 10)
+    Camera.SetPropertySwitch("Gain", "Auto", 0)
 
     WhiteBalanceAuto = [0]
     # Same goes with white balance. We make a complete red image:
@@ -72,9 +71,9 @@ if Camera.IsDevValid() == 1:
     # Camera.GetPropertySwitch("WhiteBalance", "Auto", WhiteBalanceAuto)
     # print("WB auto : ", WhiteBalanceAuto[0])
 
-    Camera.SetPropertyValue("WhiteBalance", "White Balance Red", 64)
-    Camera.SetPropertyValue("WhiteBalance", "White Balance Green", 50)
-    Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", 64)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Red", 111)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Green", 64)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", 112)
 
 
     Zoomauto = [0]
@@ -83,7 +82,16 @@ if Camera.IsDevValid() == 1:
     Camera.GetPropertySwitch("Zoom", "Auto", WhiteBalanceAuto)
     print("Zoom auto : ", WhiteBalanceAuto[0])
 
-    Camera.SetPropertyValue("Zoom", "Value", 65)
+    Camera.SetPropertyValue("Zoom", "Value", 69)
+
+
+    Focusauto = [0]
+    # Same goes with white balance. We make a complete red image:
+    Camera.SetPropertySwitch("Focus", "Auto", 0)
+    Camera.GetPropertySwitch("Focus", "Auto", Focusauto)
+    print("Focus auto : ", Focusauto[0])
+
+    Camera.SetPropertyValue("Focus", "Value", 331)
 
     img_counter = 0
 
@@ -93,7 +101,8 @@ if Camera.IsDevValid() == 1:
         # Get the image
         frame = Camera.GetImage()
         # Apply some OpenCV function on this image
-        cv.imshow('Window', frame)
+        frameS = cv.resize(frame, (640, 480))
+        cv.imshow('Window', frameS)
 
         k = cv.waitKey(1)
         if k % 256 == 27:
