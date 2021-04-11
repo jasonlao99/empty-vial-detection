@@ -95,6 +95,8 @@ if Camera.IsDevValid() == 1:
 
     img_counter = 0
 
+    net = cv.dnn.readNetFromONNX('EVD.onnx')
+
     while True:
         # Snap an image
         Camera.SnapImage()
@@ -113,6 +115,19 @@ if Camera.IsDevValid() == 1:
             cv.imwrite(img_name, frame)
             print("Picture {} saved.".format(img_name))
             img_counter += 1
+
+            image = frame
+            image = cv.resize(image, (256, 256), interpolation=cv.INTER_AREA)
+            blob = cv.dnn.blobFromImage(image, 1.0 / 255, (256, 256), (0.485, 0.456, 0.406), swapRB=True, crop=False)
+            net.setInput(blob)
+            preds = net.forward()
+            biggest_pred_index = np.array(preds)[0].argmax()
+
+            if biggest_pred_index == 1:
+                print("Predicted class: not empty")
+            else:
+                print("Predicted class: empty")
+
 
     Camera.StopLive()
     cv.destroyWindow('Window')
