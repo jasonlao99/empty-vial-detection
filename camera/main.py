@@ -1,7 +1,8 @@
 import numpy as np
 import cv2 as cv
 import os
-os.add_dll_directory(r'C:\Users\jason\Documents\Vanderbilt\4th Year Courseload\EECE Senior Design\Project\empty-vial-detection\camera')
+#os.add_dll_directory(r'C:\Users\jason\Documents\Vanderbilt\4th Year Courseload\EECE Senior Design\Project\empty-vial-detection\camera')
+#os.add_dll_directory(r'C:\Users\yxion\Documents\6_VandyUndergrad\4_ProgramManagement\EVD\Software\empty-vial-detection\camera')
 import ctypes as C
 import tisgrabber as IC
 from datetime import datetime
@@ -12,16 +13,16 @@ print("press space to take image, escape to end program")
 # Create the camera object.
 Camera = IC.TIS_CAM()
 
-# List availabe devices as uniqe names. This is a combination of camera name and serial number
-Devices = Camera.GetDevices()
-for i in range(len( Devices )):
-    print( str(i) + " : " + str(Devices[i]))
+# List availabe devices as unique names. This is a combination of camera name and serial number
+# Devices = Camera.GetDevices()
+# for i in range(len( Devices )):
+#     print( str(i) + " : " + str(Devices[i]))
 
 # Open a device with hard coded unique name:
-#Camera.open("DFK 33UX290 18810256")
-# or show the IC Imaging Control device page:
+Camera.open("DFK Z12G445 37020482")
 
-Camera.ShowDeviceSelectionDialog()
+# or show the IC Imaging Control device page:
+# Camera.ShowDeviceSelectionDialog()
 
 if Camera.IsDevValid() == 1:
     # cv2.namedWindow('Window', cv2.cv.CV_WINDOW_NORMAL)
@@ -33,7 +34,8 @@ if Camera.IsDevValid() == 1:
     # Camera.SetFrameRate( 30.0 )
 
     # Start the live video stream, but show no own live video window. We will use OpenCV for this.
-    Camera.StartLive(1)
+    # set to 0 stop supress second window
+    Camera.StartLive(0)
 
     # Set some properties
     # Exposure time
@@ -54,7 +56,8 @@ if Camera.IsDevValid() == 1:
     print("Exposure time abs: ", ExposureTime[0])
 
     # Set an absolute exposure time, given in fractions of seconds. 0.0303 is 1/30 second:
-    Camera.SetPropertyAbsoluteValue("Exposure", "Value", 0.002)
+    # increase if dark 
+    Camera.SetPropertyAbsoluteValue("Exposure", "Value", 0.0015)
 
     # Proceed with Gain, since we have gain automatic, disable first. Then set values.
     Gainauto = [0]
@@ -62,6 +65,7 @@ if Camera.IsDevValid() == 1:
     print("Gain auto : ", Gainauto[0])
 
     Camera.SetPropertySwitch("Gain", "Auto", 0)
+    Camera.SetPropertyValue("Gain", "Value", 600)
 
     WhiteBalanceAuto = [0]
     # Same goes with white balance. We make a complete red image:
@@ -100,13 +104,16 @@ if Camera.IsDevValid() == 1:
     correct = 0
     classes = ['empty', 'not empty']
 
-    net = cv.dnn.readNetFromONNX('EVD.onnx')
+    net = cv.dnn.readNetFromONNX('EVDresnet152.onnx')
 
     original_stdout = sys.stdout
     BottleID = 0
 
     f = open('output.txt', 'w')
-    f.write("Date \t \t Timestamp \t BottleID \t Prediction \t Prediction Level \n")
+    header = "Date \t \t Timestamp \t BottleID \t Prediction \t Prediction Level"
+    f.write(header)
+    f.write("\n")
+    print(header)
 
     while True:
         # Snap an image
@@ -124,7 +131,7 @@ if Camera.IsDevValid() == 1:
         elif k % 256 == 32:
             img_name = "img_{}.png".format(img_counter)
             cv.imwrite(img_name, frame)
-            print("Picture {} saved.".format(img_name))
+            # print("Picture {} saved.".format(img_name))
             img_counter += 1
 
             image = frame
@@ -140,12 +147,13 @@ if Camera.IsDevValid() == 1:
             now = datetime.now()
             date = now.strftime("%m/%d/%Y")
             timestamp = now.strftime("%H: %M: %S")
-            s = "{} \t {} \t {} \t\t {} \t {:.6f} \n".format(date, timestamp, BottleID, classes[biggest_pred_index], np.array(preds)[0][biggest_pred_index])
+            s = "{} \t {} \t {} \t\t {} \t\t {:.6f}".format(date, timestamp, BottleID, classes[biggest_pred_index], np.array(preds)[0][biggest_pred_index])
             f.write(s)
+            f.write("\n")
 
             BottleID += 1
 
-            # print(str(text))
+            print(s)
             # print(text)
             #if biggest_pred_index == 1:
             #    print("Predicted class: not empty")
