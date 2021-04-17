@@ -54,7 +54,7 @@ if Camera.IsDevValid() == 1:
 
     # Set an absolute exposure time, given in fractions of seconds. 0.0303 is 1/30 second:
     # increase if dark 
-    Camera.SetPropertyAbsoluteValue("Exposure", "Value", 0.0015)
+    Camera.SetPropertyAbsoluteValue("Exposure", "Value", 0.005)
 
     # Proceed with Gain, since we have gain automatic, disable first. Then set values.
     Gainauto = [0]
@@ -62,7 +62,8 @@ if Camera.IsDevValid() == 1:
     print("Gain auto : ", Gainauto[0])
 
     Camera.SetPropertySwitch("Gain", "Auto", 0)
-    Camera.SetPropertyValue("Gain", "Value", 600)
+    # Camera.SetPropertyValue("Gain", "Value", 600)
+    Camera.SetPropertyAbsoluteValue("Gain", "Value", 7.27)
 
     WhiteBalanceAuto = [0]
     Camera.SetPropertySwitch("WhiteBalance", "Auto", 0)
@@ -70,26 +71,32 @@ if Camera.IsDevValid() == 1:
     print("WB auto : ", WhiteBalanceAuto[0])
 
     # White Balance
-    Camera.SetPropertyValue("WhiteBalance", "White Balance Red", 111)
-    Camera.SetPropertyValue("WhiteBalance", "White Balance Green", 64)
-    Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", 112)
+    # Camera.SetPropertyValue("WhiteBalance", "White Balance Red", 111)
+    # Camera.SetPropertyValue("WhiteBalance", "White Balance Green", 64)
+    # Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", 112)
+
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Red", 107)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Green", 67)
+    Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", 200)
 
     # Zoom
     Zoomauto = [0]
     Camera.SetPropertySwitch("Zoom", "Auto", 0)
     Camera.GetPropertySwitch("Zoom", "Auto", WhiteBalanceAuto)
-    Camera.SetPropertyValue("Zoom", "Value", 50)
+    # Camera.SetPropertyValue("Zoom", "Value", 50)
+    Camera.SetPropertyValue("Zoom", "Value", 65)
     print("Zoom auto : ", WhiteBalanceAuto[0])
 
     # Focus 
     Focusauto = [0]
     Camera.SetPropertySwitch("Focus", "Auto", 0)
     Camera.GetPropertySwitch("Focus", "Auto", Focusauto)
-    Camera.SetPropertyValue("Focus", "Value", 270)
+    # Camera.SetPropertyValue("Focus", "Value", 270)
+    Camera.SetPropertyValue("Focus", "Value", 286)
     print("Focus auto : ", Focusauto[0])
 
     # set training file location
-    net = cv.dnn.readNetFromONNX('EVDresnet152.onnx')
+    net = cv.dnn.readNetFromONNX('EVDnew.onnx')
 
     # redirect output
     original_stdout = sys.stdout
@@ -121,14 +128,25 @@ if Camera.IsDevValid() == 1:
         elif k % 256 == 32:
 
             # save image
-            img_name = "img_{}.png".format(img_counter)
+            img_name = "4_17_contrast_2_img_{}.png".format(img_counter)
             cv.imwrite(img_name, frame)
             img_counter += 1
 
             # process image with model
             image = frame
             image = cv.resize(image, (256, 256), interpolation=cv.INTER_AREA)
-            blob = cv.dnn.blobFromImage(image, 1.0/255, (256, 256), (0.485, 0.456, 0.406), swapRB=True, crop=False)
+
+            mean = [0.485, 0.456, 0.406]
+            std = [0.229, 0.224, 0.225]
+            red = image[:,:,2].copy()
+            blue = image[:,:,0].copy()
+            image[:,:,0] = red
+            image[:,:,2] = blue
+            image = image/255.0
+            image = (image - mean)/std
+            image = np.float32(image)
+            blob = cv.dnn.blobFromImage(image, 1.0, (256, 256), (0,0,0), swapRB=False, crop=False)
+            
             net.setInput(blob)
             preds = net.forward()
             biggest_pred_index = np.array(preds)[0].argmax(0)
