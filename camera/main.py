@@ -164,6 +164,9 @@ if Camera.IsDevValid() == 1:
             cv.imwrite(img_name, frame)
             img_counter += 1
 
+            # Threshold
+            threshold = 0.8
+
             # Process image with model
             image = frame
             # Resize image
@@ -191,13 +194,23 @@ if Camera.IsDevValid() == 1:
             preds = net.forward()
             biggest_pred_index = np.array(preds)[0].argmax(0)
 
+            prediction = ""
+
+            # If model prediction level is below the threshold, the output will indicate that the model is unsure of
+            # its prediction.
+            if np.array(preds)[0][biggest_pred_index] < threshold:
+                prediction = "Unsure: "
+
+            prediction += classes[biggest_pred_index]
+
             # Get date and time
             now = datetime.now()
             date = now.strftime("%m/%d/%Y")
             timestamp = now.strftime("%H:%M:%S")
 
             # Format output
-            s = "{} \t {} \t {} \t\t {} \t {:.6f}".format(date, timestamp, BottleID, classes[biggest_pred_index].ljust(11), np.array(preds)[0][biggest_pred_index])
+            s = "{} \t {} \t {} \t\t {} \t {:.6f}".format(date, timestamp, BottleID, prediction.ljust(11),
+                                                          np.array(preds)[0][biggest_pred_index])
             csv = "{},{},{},{},{:.6f}\n".format(date, timestamp, BottleID, classes[biggest_pred_index], np.array(preds)[0][biggest_pred_index])
 
             # Write output to file and console
