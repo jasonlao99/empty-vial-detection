@@ -13,12 +13,15 @@ import os
 import copy
 import onnx
 
-plt.ion()   # interactive mode
+# Code taken from pytorch.org with modifications
+# Original code can be found at https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
+
+plt.ion()   # Interactive mode
 
 def main():
 
     # Data augmentation and normalization for training
-    # Just normalization for validation
+    # Just normalization for validation and testing
     data_transforms = {
         'train': transforms.Compose([
             transforms.Resize(256),
@@ -39,6 +42,16 @@ def main():
         ]),
     }
 
+    # Load in data from train val test files
+    # Dataset should be split into train val test files, each of these files containing a not empty and empty folder
+    # Splits can be made using the sorting.py file, and copied into the data files.
+    # In summary, the data folder should be organized:
+    # data -> train -> not empty
+    #               -> empty
+    #      -> val -> not empty
+    #             -> empty
+    #      -> test -> not empty
+    #              -> empty
     data_dir = 'data/'
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                               data_transforms[x])
@@ -49,8 +62,11 @@ def main():
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val', 'test']}
     class_names = image_datasets['train'].classes
 
+    # Enable cuda if device supports it
+    # Highly recommended, as training will take a very long time without a CUDA supported GPU
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+    # Function to show some of the images
     def imshow(inp, title=None):
         """Imshow for Tensor."""
         inp = inp.numpy().transpose((1, 2, 0))
@@ -70,10 +86,12 @@ def main():
     # Make a grid from batch
     out = torchvision.utils.make_grid(inputs)
 
+    # Show images
     imshow(out, title=[class_names[x] for x in classes])
 
     plt.pause(5)
 
+    # Function for training the model
     def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
         since = time.time()
 
@@ -142,6 +160,7 @@ def main():
         model.load_state_dict(best_model_wts)
         return model
 
+    # Function for showing an example for the model's outputs
     def visualize_model(model, num_images=6):
         was_training = model.training
         model.eval()
@@ -175,6 +194,7 @@ def main():
 
             model.train(mode=was_training)
 
+    # Function to check the accuracy of the model on the test set
     def check_accuracy(model, loader):
         num_correct = 0
         num_samples = 0
@@ -195,10 +215,15 @@ def main():
 
         model.train()
 
+    # Load in pretrained model
     model_ft = models.resnet152(pretrained=True)
+
+    # Read number of features
     num_ftrs = model_ft.fc.in_features
     # Here the size of each output sample is set to 2.
     # Alternatively, it can be generalized to nn.Linear(num_ftrs, len(class_names)).
+    # Also, apply the Softmax level to have outputs normalized between 0-1, and add up to 1. Gives a prediction level
+    # for each prediction.
     model_ft.fc = nn.Sequential(
         nn.Linear(num_ftrs, 2),
         nn.Softmax(dim=1),
@@ -219,12 +244,15 @@ def main():
     # visualize_model(model_ft)
     check_accuracy(model_ft, dataloaders['test'])
 
+    # Set model to eval mode before exporting
     model_ft.eval()
 
+    # Set tensor for onnx exporting
     batch_size = 1
     x = torch.randn(batch_size, 3, 256, 256, requires_grad=True)
     x_g0 = x.to('cuda:0')
 
+    # Export file as an onnx file
     torch.onnx.export(model_ft,  # model being run
                       x_g0,  # model input (or a tuple for multiple inputs)
                       "EVD.onnx",  # where to save the model (can be a file or file-like object)
