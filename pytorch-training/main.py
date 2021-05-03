@@ -195,6 +195,7 @@ def main():
             model.train(mode=was_training)
 
     # Function to check the accuracy of the model on the test set
+    # Function taken from https://discuss.pytorch.org/t/how-to-find-test-accuracy-after-training/88962/3
     def check_accuracy(model, loader):
         num_correct = 0
         num_samples = 0
