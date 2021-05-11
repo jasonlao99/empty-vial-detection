@@ -2,12 +2,19 @@ import os
 import shutil
 import random
 
-path = "C:/Users/yxion/Documents/6_VandyUndergrad/4_ProgramManagement/EVD/Software/empty-vial-detection/camera/Not_Empty/"
+# user specified path for folder
+path = "C:/Users/foo/"
+
+# obtain file names for everything that that directory
 names = os.listdir(path)
+
+# create necessary folders if they do not exist yet
 folder_name = ['training', 'validation', 'testing']
 for name in folder_name:
     if not os.path.exists(path+name):
         os.makedirs(path+name)
+
+# sort all PNG files randomly into the folders w/ appropriate distribution
 for file in names:
     if ".png" in file: 
         num = random.randint(0,9)
