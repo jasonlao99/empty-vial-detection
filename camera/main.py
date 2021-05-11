@@ -14,7 +14,6 @@ import sys
 img_counter = 0
 # Placeholder value for bottleIDs.
 BottleID = 0
-classes = ['empty', 'not empty']
 
 print("press space to take image, escape to end program")
 
@@ -62,70 +61,32 @@ if Camera.IsDevValid() == 1:
     focus_value = 286
 
     # Exposure
-    ExposureAuto = [1]
     Camera.SetPropertySwitch("Exposure", "Auto", exposure_auto)
-    Camera.GetPropertySwitch("Exposure", "Auto", ExposureAuto)
-    print("Exposure auto : ", exposure_auto)
 
     # Exposure Time
-    ExposureTime = [0]
     Camera.SetPropertyAbsoluteValue("Exposure", "Value", exposure_time)
-    Camera.GetPropertyAbsoluteValue("Exposure", "Value", ExposureTime)
-    print("Exposure time abs: ", ExposureTime[0])
 
     # Gain
-    GainAuto = [0]
     Camera.SetPropertySwitch("Gain", "Auto", gain_auto)
-    Camera.GetPropertySwitch("Gain", "Auto", GainAuto)
-    print("Gain auto : ", Gainauto[0])
 
-    GainValue = [0]
     Camera.SetPropertyAbsoluteValue("Gain", "Value", gain_value)
-    Camera.GetPropertyAbsoluteValue("Gain", "Value", GainValue)
-    print("Gain : ", GainValue[0])
 
     # While Balance
-    WhiteBalanceAuto = [0]
     Camera.SetPropertySwitch("WhiteBalance", "Auto", white_balance_auto)
-    Camera.GetPropertySwitch("WhiteBalance", "Auto", WhiteBalanceAuto)
-    print("WB auto : ", WhiteBalanceAuto[0])
 
-    # White Balance
     Camera.SetPropertyValue("WhiteBalance", "White Balance Red", white_balance_red)
     Camera.SetPropertyValue("WhiteBalance", "White Balance Green", white_balance_green)
     Camera.SetPropertyValue("WhiteBalance", "White Balance Blue", white_balance_blue)
 
-    WhiteBalanceRed = [0]
-    WhiteBalanceBlue = [0]
-    WhiteBalanceGreen = [0]
-    Camera.GetPropertyValue("WhiteBalance", "White Balance Red", WhiteBalanceRed)
-    Camera.GetPropertyValue("WhiteBalance", "White Balance Green", WhiteBalanceGreen)
-    Camera.GetPropertyValue("WhiteBalance", "White Balance Blue", WhiteBalanceBlue)
-    print("WB red : ", WhiteBalanceRed[0])
-    print("WB green : ", WhiteBalanceBlue[0])
-    print("WB blue : ", WhiteBalanceGreen[0])
-
     # Zoom
-    ZoomAuto = [0]
     Camera.SetPropertySwitch("Zoom", "Auto", zoom_auto)
-    Camera.GetPropertySwitch("Zoom", "Auto", ZoomAuto)
-    print("Zoom auto : ", ZoomAuto[0])
 
-    ZoomValue = [0]
     Camera.SetPropertyValue("Zoom", "Value", zoom_value)
-    Camera.GetPropertyValue("Zoom", "Value", ZoomValue)
-    print("Zoom value : ", ZoomValue[0])
 
-    # Focus 
-    FocusAuto = [0]
+    # Focus
     Camera.SetPropertySwitch("Focus", "Auto", focus_auto)
-    Camera.GetPropertySwitch("Focus", "Auto", FocusAuto)
-    print("Focus auto : ", FocusAuto[0])
 
-    FocusValue = [0]
     Camera.SetPropertyValue("Focus", "Value", focus_value)
-    Camera.GetPropertyValue("Focus", "Value", FocusValue)
-    print("Focus value : ", FocusValue[0])
 
 
 
